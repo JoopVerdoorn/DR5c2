@@ -94,22 +94,22 @@ class PowerView extends CiqView {
 		//! Display colored labels on screen
 		for (var i = 1; i < 6; ++i) {
 		   	if ( i == 1 ) {			//!upper row, left    	
-	    		Coloring(dc,i,fieldValue[i],"018,029,100,019");
+	    		Coloring2(dc,i,fieldValue[i],"018,029,100,019");
 		   	} else if ( i == 2 ) {	//!upper row, right
-		   		Coloring(dc,i,fieldValue[i],"120,029,100,019");
+		   		Coloring2(dc,i,fieldValue[i],"120,029,100,019");
 	       	} else if ( i == 3 ) {  //!lower row, left
-	    		Coloring(dc,i,fieldValue[i],"000,093,119,019");
+	    		Coloring2(dc,i,fieldValue[i],"000,093,119,019");
 	      	} else if ( i == 4 ) {  //!middle row, right
-	    		Coloring(dc,i,fieldValue[i],"120,093,120,019");
+	    		Coloring2(dc,i,fieldValue[i],"120,093,120,019");
 		   	} else if ( i == 5 ) {	//!lower row, middle
-		 		Coloring(dc,i,fieldValue[i],"010,175,100,043");		 		
+		 		Coloring2(dc,i,fieldValue[i],"010,175,100,043");		 		
 	    	}       	
 		} 
 	   
 	}
 	
 	
-	function Coloring(dc,counter,testvalue,CorString) {
+	function Coloring2(dc,counter,testvalue,CorString) {
 		var info = Activity.getActivityInfo();
         var x = CorString.substring(0, 3);
         var y = CorString.substring(4, 7);
