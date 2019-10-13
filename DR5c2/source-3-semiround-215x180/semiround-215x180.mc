@@ -75,9 +75,6 @@ class DeviceView extends PowerView {
 		dc.fillRectangle(125, 3, 15, 19);
 		dc.fillRectangle(128, 1, 9, 3);
 		
-		dc.setColor(mBattcolor, Graphics.COLOR_TRANSPARENT);
-		dc.fillRectangle(127, 5, 11, 15);
-		
 		dc.setColor(mColourBackGround, Graphics.COLOR_TRANSPARENT);
 		var Endstatuspwrbr = 0.15*(100-pwr)  ;
 		var Startstatuspwrbr = 5  ;
@@ -93,7 +90,6 @@ class DeviceView extends PowerView {
 			dc.drawText(109, 100, Graphics.FONT_MEDIUM, "Registered !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(74, 125, Graphics.FONT_XTINY, "License code: ", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(164, 125, Graphics.FONT_XTINY, mtest, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-			dc.drawText(140, 150, Graphics.FONT_XTINY, CCode, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);			
 		} else {
       		dc.drawText(109, 15, Graphics.FONT_XTINY, "License needed !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
       		dc.drawText(109, 37, Graphics.FONT_XTINY, "Run is recorded though", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
