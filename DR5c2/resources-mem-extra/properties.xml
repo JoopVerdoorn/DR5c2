@@ -4,7 +4,7 @@
     	<font id="Garmin2" filename="fonts/Roadway73-alleencijfers.fnt" antialias="true"/>
 	</fonts>
   <properties>
-    <property id="pAppversion" type="string"></property>
+    <property id="pAppversion" type="string">2.27</property>
     <property id="pUpperLeftMetric" type="number">0</property>
     <property id="pUpperRightMetric" type="number">4</property>
     <property id="pMiddleLeftMetric" type="number">45</property>    
@@ -28,20 +28,17 @@
     <property id="pdisablelabel3" type="boolean">false</property>
     <property id="pdisablelabel4" type="boolean">false</property>
     <property id="pdisablelabel5" type="boolean">false</property>
-	<property id="pGarminColors" type="boolean">false</property>
-	<property id="pCCnumber" type="number">9999999</property>	
+	<property id="pGarminColors" type="boolean">false</property>	
+	<property id="ptempunits" type="boolean">false</property>
+	<property id="pCCnumber" type="number">9999999</property>
   </properties>
 
 	
   <strings>
-    <!-- Release name: -->
     <string id="AppName">Datarun premium with 5 metrics, copy 2 version</string>
-    <!-- Beta name:
-    <string id="AppName">Datarun premium with 5 metrics, copy 2 version</string>
-    -->
-    <string id="AppVersion"></string>
+    <string id="AppVersion">2.27</string>
+    <string id="lDummysetting4version">Version 2.27 of Datarun premium with 5 metrics, copy 2 version (dummy setting)</string>
     <string id="lCCnumber">C-Code generated on the watch by the corresponding main Datarun premium datafield</string>
-    <string id="lDummysetting4version">Version  of Datarun premium with 5 metrics, copy 2 version (dummy setting)</string>
 	<string id="lTimeMenu">___Time items___</string>
 	<string id="lDistanceMenu">___Distance items___</string>
 	<string id="lPaceMenu">___Pace items___</string>
@@ -50,7 +47,7 @@
 	<string id="lHRMenu">___Heartrate items___</string>
 	<string id="lSPowerMenu">___Power items___</string>
 	<string id="lPIMenu">___Performance indicator items___</string>
-	<string id="lAltitudeMenu">___Altitude items___</string>
+	<string id="lAltitudeMenu">___Altitude and temperature items___</string>
     <string id="lTimerDisplay">Timer field</string>
     <string id="lTimerTimer">Timer</string>
     <string id="lTimerLap">Current lap time</string>
@@ -139,7 +136,9 @@
     <string id="lApercMaxHR">Average HR in percentage of MaxHR</string>	
     <string id="lkCalories">Used kilocalories</string>
     <string id="lLLPaceper100m">Pace of last lap in seconds per 100 meter (for track running)</string>
-    <string id="lTemp">Current temperature</string>
+    <string id="lTemp">Current watch temperature</string>
+	<string id="lTempeTemp">Current Tempe temperature (requires Tempe!)</string>
+	<string id="ltempunits">Use Fahrenheit instead of Celsius for temperature metrics (Celsius is default)</string>
 	<string id="lGarminColors">Use Garmin color scheme for label colors (not applicable for Palladino 10 powerzones)</string>
  </strings>
 
@@ -159,7 +158,6 @@
     <setting propertyKey="@Properties.pCCnumber" title="@Strings.lCCnumber">
         <settingConfig type="numeric" errorMessage="@Strings.MyNumberError" />
     </setting>
-    
     <setting propertyKey="@Properties.pRoundedPace" title="@Strings.lRoundedPace">
       <settingConfig type="boolean" required="true" />
     </setting>
@@ -168,6 +166,9 @@
     </setting>
     <setting propertyKey="@Properties.pRacetime" title="@Strings.lRacetimeTitle">
       <settingConfig type="alphaNumeric"  required="true"/>
+    </setting>
+    <setting propertyKey="@Properties.ptempunits" title="@Strings.ltempunits">
+      <settingConfig type="boolean" required="true" />
     </setting>
     <setting propertyKey="@Properties.pMilClockAltern" title="@Strings.lMilClockAltern">
       <settingConfig type="list" required="true">
@@ -254,6 +255,7 @@
         <listEntry value="52">@Strings.lElevationGain</listEntry>
         <listEntry value="53">@Strings.lElevationLoss</listEntry>
         <listEntry value="89">@Strings.lTemp</listEntry>
+        <listEntry value="105">@Strings.lTempeTemp</listEntry>
       </settingConfig>
     </setting>
     <setting propertyKey="@Properties.pUpperRightMetric" title="@Strings.lUpperRightMetric">
@@ -324,6 +326,7 @@
         <listEntry value="52">@Strings.lElevationGain</listEntry>
         <listEntry value="53">@Strings.lElevationLoss</listEntry>
         <listEntry value="89">@Strings.lTemp</listEntry>
+        <listEntry value="105">@Strings.lTempeTemp</listEntry>
       </settingConfig>
     </setting>
 
@@ -389,6 +392,7 @@
         <listEntry value="52">@Strings.lElevationGain</listEntry>
         <listEntry value="53">@Strings.lElevationLoss</listEntry>
         <listEntry value="89">@Strings.lTemp</listEntry>
+        <listEntry value="105">@Strings.lTempeTemp</listEntry>
         </settingConfig>
     </setting>
     <setting propertyKey="@Properties.pMiddleRightMetric" title="@Strings.lMiddleRightMetric">
@@ -453,6 +457,7 @@
         <listEntry value="52">@Strings.lElevationGain</listEntry>
         <listEntry value="53">@Strings.lElevationLoss</listEntry>
         <listEntry value="89">@Strings.lTemp</listEntry>
+        <listEntry value="105">@Strings.lTempeTemp</listEntry>
       </settingConfig>
     </setting>
     
@@ -524,6 +529,7 @@
         <listEntry value="52">@Strings.lElevationGain</listEntry>
         <listEntry value="53">@Strings.lElevationLoss</listEntry>
         <listEntry value="89">@Strings.lTemp</listEntry>
+        <listEntry value="105">@Strings.lTempeTemp</listEntry>
       </settingConfig>
     </setting>
     <setting propertyKey="@Properties.pClockFieldMetric" title="@Strings.lClockFieldMetric">
@@ -576,6 +582,7 @@
         <listEntry value="52">@Strings.lElevationGain</listEntry>
         <listEntry value="53">@Strings.lElevationLoss</listEntry>
         <listEntry value="89">@Strings.lTemp</listEntry>
+        <listEntry value="105">@Strings.lTempeTemp</listEntry>
         
         <listEntry value="997">@Strings.lPIMenu</listEntry>
         <listEntry value="32">@Strings.lCEFactor</listEntry>
