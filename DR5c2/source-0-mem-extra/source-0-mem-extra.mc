@@ -18,11 +18,7 @@ class ExtramemView extends DatarunpremiumView {
 	var uClockFieldMetric 					= 38; //! Powerzone is default
 	var HRzone								= 0;
 	hidden var Powerzone					= 0;
-	var VertPace1							= 0;
-	var VertPace2							= 0;
-	var VertPace3							= 0;
-	var VertPace4							= 0;
-	var VertPace5							= 0;
+	var VertPace							= [1, 2, 3, 4, 5, 6];
 	var uGarminColors 						= false;
 	var Z1color = Graphics.COLOR_LT_GRAY;
 	var Z2color = Graphics.COLOR_YELLOW;
@@ -37,8 +33,26 @@ class ExtramemView extends DatarunpremiumView {
 	var disablelabel5 						= false;
 	var maxHR								= 999;
 	var kCalories							= 0;
-	var tempeTemp 							= 0;
+	var mElapsedCadence   					= 0;
+	var mLastLapCadenceMarker      			= 0;    
+    var mCurrentCadence    					= 0; 
+    var mLastLapElapsedCadence				= 0;
+    var mCadenceTime						= 0;
+    var mLapTimerTimeCadence				= 0;    
+	var mLastLapTimeCadenceMarker			= 0;
+	var mLastLapTimerTimeCadence			= 0;
+	var currentCadence						= 0;
+	var LapCadence							= 0;
+	var LastLapCadence						= 0;
+	var AverageCadence 						= 0;
+	hidden var tempeTemp 					= 0;
 	var utempunits							= false;
+	var valueAsclast						= 0;
+	var valueDesclast						= 0;
+	var Diff1 								= 0;
+	var Diff2 								= 0;
+	var utempcalibration					= 0;
+	var hrRest;
 	
     function initialize() {
         DatarunpremiumView.initialize();
@@ -54,6 +68,16 @@ class ExtramemView extends DatarunpremiumView {
 		disablelabel3 						= mApp.getProperty("pdisablelabel3");
 		disablelabel4 						= mApp.getProperty("pdisablelabel4");
 		disablelabel5 						= mApp.getProperty("pdisablelabel5");
+		utempcalibration 			= mApp.getProperty("pTempeCalibration");
+
+		var i; 
+		for (i = 1; i < 6; ++i) {
+			VertPace[i] = 0;
+		} 
+
+		var uProfile = Toybox.UserProfile.getProfile();
+		hrRest = (uProfile.restingHeartRate != null) ? uProfile.restingHeartRate : 50;	
+		hrRest = stringOrNumber(hrRest);
     }
 
 	function onUpdate(dc) {
@@ -76,6 +100,13 @@ class ExtramemView extends DatarunpremiumView {
 		}
 		dc.setColor(mColourBackGround, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle (0, 0, 280, 280);
+        
+        //! Calculate lap (Cadence) time
+        mLapTimerTimeCadence 	= mCadenceTime - mLastLapTimeCadenceMarker;
+        var mLapElapsedCadence 	= mElapsedCadence - mLastLapCadenceMarker;
+		AverageCadence 			= Math.round((mCadenceTime != 0) ? mElapsedCadence/mCadenceTime : 0);  		
+		LapCadence 				= (mLapTimerTimeCadence != 0) ? Math.round(mLapElapsedCadence/mLapTimerTimeCadence) : 0; 					
+		LastLapCadence			= (mLastLapTimerTime != 0) ? Math.round(mLastLapElapsedCadence/mLastLapTimerTime) : 0;
        
 		//! Calculation of rolling average of pace
 		var info = Activity.getActivityInfo();
@@ -122,15 +153,19 @@ class ExtramemView extends DatarunpremiumView {
 		//! Calculate vertical speed
 		var valueDesc = (info.totalDescent != null) ? info.totalDescent : 0;
         valueDesc = (unitD == 1609.344) ? valueDesc*3.2808 : valueDesc;
+        Diff1 = valueDesc - valueDesclast;
 		var valueAsc = (info.totalAscent != null) ? info.totalAscent : 0;
         valueAsc = (unitD == 1609.344) ? valueAsc*3.2808 : valueAsc;
-        var CurrentVertSpeedinmpersec = valueAsc-valueDesc;
-		VertPace5 								= VertPace4;
-		VertPace4 								= VertPace3;
-		VertPace3 								= VertPace2;
-        VertPace2 								= VertPace1;
-        VertPace1								= CurrentVertSpeedinmpersec; 
-		var AverageVertspeedinmper5sec= (VertPace1+VertPace2+VertPace3+VertPace4+VertPace5)/5;
+        Diff2 = valueAsc - valueAsclast;
+        valueDesclast = valueDesc;
+        valueAsclast = valueAsc;
+        var CurrentVertSpeedinmpersec = Diff2-Diff1;
+		VertPace[5] 							= VertPace[4];
+		VertPace[4]								= VertPace[3];
+		VertPace[3] 							= VertPace[2];
+        VertPace[2] 							= VertPace[1];
+        VertPace[1]								= CurrentVertSpeedinmpersec; 
+		var AverageVertspeedinmper5sec= (VertPace[1]+VertPace[2]+VertPace[3]+VertPace[4]+VertPace[5])/5;
 		
 		var sensorIter = getIterator();
 		maxHR = uHrZones[5]; 
@@ -153,19 +188,19 @@ class ExtramemView extends DatarunpremiumView {
         	    fieldLabel[i] = "DistDest";
             	fieldFormat[i] = "2decimal";
 	        } else if (metric[i] == 28) {
-    	        fieldValue[i] = LapEfficiencyFactor;
+    	        fieldValue[i] = (LapHeartrate != 0) ? mLapSpeed*60/LapHeartrate : 0;
         	    fieldLabel[i] = "Lap EF";
             	fieldFormat[i] = "2decimal";
 			} else if (metric[i] == 29) {
-    	        fieldValue[i] = LastLapEfficiencyFactor;
+    	        fieldValue[i] = (LastLapHeartrate != 0) ? mLastLapSpeed*60/LastLapHeartrate : 0;
         	    fieldLabel[i] = "LL EF";
             	fieldFormat[i] = "2decimal";
 			} else if (metric[i] == 30) {
-	            fieldValue[i] = AverageEfficiencyFactor;
+	            fieldValue[i] = (info.averageSpeed != null && AverageHeartrate != 0) ? info.averageSpeed*60/AverageHeartrate : 0;
     	        fieldLabel[i] = "Avg EF";
         	    fieldFormat[i] = "2decimal";
 			} else if (metric[i] == 32) {
-	            fieldValue[i] = CurrentEfficiencyFactor;
+	            fieldValue[i] = (info.currentHeartRate != null && info.currentHeartRate != 0) ? mLapSpeed*60/info.currentHeartRate : 0;
     	        fieldLabel[i] = "Cur EF";
         	    fieldFormat[i] = "2decimal";
 			} else if (metric[i] == 46) {
@@ -185,7 +220,7 @@ class ExtramemView extends DatarunpremiumView {
             	fieldLabel[i] = "EL loss";
             	fieldFormat[i] = "0decimal";           	
         	}  else if (metric[i] == 61) {
-           		fieldValue[i] = (info.currentCadence != null) ? info.currentCadence/2 : 0;
+           		fieldValue[i] = (info.currentCadence != null) ? Math.round(info.currentCadence/2) : 0;
             	fieldLabel[i] = "RCadence";
             	fieldFormat[i] = "0decimal";           	
         	}  else if (metric[i] == 62) {
@@ -225,9 +260,21 @@ class ExtramemView extends DatarunpremiumView {
     	        fieldValue[i] = (utempunits == false) ? fieldValue[i] : fieldValue[i]*1.8+32;
         	    fieldLabel[i] = "Temp";
             	fieldFormat[i] = "1decimal";
+            } else if (metric[i] == 90) {
+    	        fieldValue[i] = LapCadence;
+        	    fieldLabel[i] = "Lap Cad";
+            	fieldFormat[i] = "0decimal";
+			} else if (metric[i] == 91) {
+    	        fieldValue[i] = LastLapCadence;
+        	    fieldLabel[i] = "LL Cad";
+            	fieldFormat[i] = "0decimal";
+			} else if (metric[i] == 92) {
+	            fieldValue[i] = AverageCadence;
+    	        fieldLabel[i] = "Avg Cad";
+        	    fieldFormat[i] = "0decimal";
             } else if (metric[i] == 105) {
 	            fieldValue[i] = tempeTemp;
-	            fieldValue[i] = (utempunits == false) ? fieldValue[i] : fieldValue[i]*1.8+32;
+	            fieldValue[i] = (utempunits == false) ? fieldValue[i]+utempcalibration : fieldValue[i]*1.8+32+utempcalibration;
     	        fieldLabel[i] = "Tempe T";
     	        fieldFormat[i] = "0decimal";
 			} 
@@ -340,19 +387,19 @@ class ExtramemView extends DatarunpremiumView {
             	CFMLabel = "s/100m";
         	    CFMFormat = "2decimal";
 	        } else if (uClockFieldMetric == 28) {
-    	        CFMValue = LapEfficiencyFactor;
+    	        CFMValue = (LapHeartrate != 0) ? mLapSpeed*60/LapHeartrate : 0;
         	    CFMLabel = "Lap EF";
             	CFMFormat = "2decimal";
 			} else if (uClockFieldMetric == 29) {
-    	        CFMValue = LastLapEfficiencyFactor;
+    	        CFMValue = (LastLapHeartrate != 0) ? mLastLapSpeed*60/LastLapHeartrate : 0;
         	    CFMLabel = "LL EF";
             	CFMFormat = "2decimal";
 			} else if (uClockFieldMetric == 30) {
-	            CFMValue = AverageEfficiencyFactor;
+	            CFMValue = (info.averageSpeed != null && AverageHeartrate != 0) ? info.averageSpeed*60/AverageHeartrate : 0;
     	        CFMLabel = "Avg EF";
         	    CFMFormat = "2decimal";
 			} else if (uClockFieldMetric == 32) {
-	            CFMValue = CurrentEfficiencyFactor;
+	            CFMValue = (info.currentHeartRate != null && info.currentHeartRate != 0) ? mLapSpeed*60/info.currentHeartRate : 0;
     	        CFMLabel = "Cur EF";
         	    CFMFormat = "2decimal";
 	        } else if (uClockFieldMetric == 17) {
@@ -372,7 +419,7 @@ class ExtramemView extends DatarunpremiumView {
             	CFMLabel = "EL loss";
             	CFMFormat = "0decimal";           	
         	}  else if (uClockFieldMetric == 61) {
-           		CFMValue = (info.currentCadence != null) ? info.currentCadence/2 : 0;
+           		CFMValue = (info.currentCadence != null) ? Math.round(info.currentCadence/2) : 0;
             	CFMLabel = "RCadence";
             	CFMFormat = "0decimal";           	
         	}  else if (uClockFieldMetric == 62) {
@@ -434,9 +481,21 @@ class ExtramemView extends DatarunpremiumView {
             	CFMFormat = "1decimal";
             } else if (uClockFieldMetric == 105) {
 	            CFMValue = tempeTemp;
-	            CFMValue = (utempunits == false) ? CFMValue : CFMValue*1.8+32;
+	            CFMValue = (utempunits == false) ? CFMValue+utempcalibration : CFMValue*1.8+32+utempcalibration;
     	        CFMLabel = "Tempe T";
         	    CFMFormat = "0decimal";
+        	} else if (uClockFieldMetric == 90) {
+    	        CFMValue = LapCadence;
+        	    CFMValue = "Lap Cad";
+            	CFMValue = "0decimal";
+			} else if (uClockFieldMetric == 91) {
+    	        CFMValue = LastLapCadence;
+        	    CFMValue = "LL Cad";
+            	CFMValue = "0decimal";
+			} else if (uClockFieldMetric == 92) {
+	            CFMValue = AverageCadence;
+    	        CFMValue = "Avg Cad";
+        	    CFMValue = "0decimal";
 			}			 
 
 		//! Conditions for showing the demoscreen       
@@ -608,6 +667,7 @@ class ExtramemView extends DatarunpremiumView {
         var y = CorString.substring(4, 7);
         var w = CorString.substring(8, 11);
         var h = CorString.substring(12, 15);
+        var baseline = 0;
         x = x.toNumber();
         y = y.toNumber();
         w = w.toNumber();
@@ -626,6 +686,7 @@ class ExtramemView extends DatarunpremiumView {
             mZ4under = uHrZones[3];
             mZ5under = uHrZones[4];
             mZ5upper = uHrZones[5];
+            baseline = hrRest;
             if (uGarminColors == true) {
         		Z1color = Graphics.COLOR_LT_GRAY;
         		Z2color = Graphics.COLOR_BLUE;
@@ -727,7 +788,7 @@ class ExtramemView extends DatarunpremiumView {
 			mZone[counter] = Math.round(10*(1+(testvalue-mZ1under+0.00001)/(mZ2under-mZ1under+0.00001)))/10;
 		} else {
 			mfillColour = mColourBackGround;        
-            mZone[counter] = 0;
+            mZone[counter] = Math.round(10*((testvalue-baseline+0.00001)/(mZ1under-0.00001)))/10;
 		}		
 
 		if ( PalPowerzones == true) {
@@ -792,7 +853,7 @@ class ExtramemView extends DatarunpremiumView {
                     mZone[counter] = Math.round(10*(1+(testvalue-mZ1under+0.00001)/(mZ2under-mZ1under+0.00001)))/10;
                 } else {
                     mfillColour = Graphics.COLOR_LT_GRAY;        //! (Z0)
-                    mZone[counter] = 0;
+                    mZone[counter] = Math.round(10*((testvalue-baseline+0.00001)/(mZ1under-0.00001)))/10;
                 }
 		 	  }
 		   }
@@ -823,6 +884,16 @@ function getIterator() {
         return Toybox.SensorHistory.getTemperatureHistory({});
     }
     return null;
+}
+
+function stringOrNumber(valueorcharacter) {
+	if (valueorcharacter instanceof Toybox.Lang.Number) {
+		//!process Number	
+		return valueorcharacter;
+	} else {
+		//!process String	
+		return 50;
+	}
 }
 
 (:background)
